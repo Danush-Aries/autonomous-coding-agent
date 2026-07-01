@@ -8,11 +8,43 @@
 ![Anthropic](https://img.shields.io/badge/Claude_Sonnet_4.6-D97757?style=for-the-badge&logo=anthropic&logoColor=white)
 ![Tool Use](https://img.shields.io/badge/Tool_Use-00ff41?style=for-the-badge&logo=anthropic&logoColor=black)
 ![Rich](https://img.shields.io/badge/Rich_TUI-FAE042?style=for-the-badge)
+![CI](https://github.com/Dhanush-Aries/autonomous-coding-agent/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-00ff41?style=for-the-badge)
 
 </div>
 
+<!-- ============================================================ -->
+<!-- VIDEO-FIRST HERO                                              -->
+<!-- ============================================================ -->
+
+<div align="center">
+
+<!-- Primary: inline video (GitHub renders <video> in README) -->
+<video src="https://user-images.githubusercontent.com/PLACEHOLDER/demo.mp4" controls muted width="720">
+  Your browser does not support the video tag.
+</video>
+
+<!-- Fallback 1: YouTube -->
+<p><a href="https://youtu.be/PLACEHOLDER"><strong>▶ Watch on YouTube</strong></a></p>
+
+<!-- Fallback 2: animated GIF -->
+<img src="assets/demo.gif" width="720" alt="60-second demo GIF" />
+
+</div>
+
+> **Watch it work**: 60-second demo above — broken FastAPI repo in, fixed repo + regression test out.
+
+---
+
 A **two-agent autonomous coding system** powered by **Claude Sonnet 4.6**. Hand it a natural-language task — it plans, codes, and runs the solution end-to-end with real tool use and crash-resumable state.
+
+## ✨ Features
+
+- 🛠️ **Real Claude tool use** — not simulated; full Anthropic SDK tool_use loop
+- 💸 **Prompt caching** on system prompts for cost-efficient long sessions
+- 💾 **Crash-resumable** — state persists per step; `--resume` continues anywhere
+- 🎨 **Rich terminal UI** — colour-coded panels for every tool call
+- 🔍 **Glass-box agentic loop** — full visibility into the plan, every action, every result
 
 ## 🏗️ Architecture
 
@@ -60,13 +92,26 @@ python main.py --status                           # show current state
 python main.py --clear                            # clear saved state
 ```
 
-## ✨ Features
+## 🎥 Reproduce the demo
 
-- 🛠️ **Real Claude tool use** — not simulated; full Anthropic SDK tool_use loop
-- 💸 **Prompt caching** on system prompts for cost-efficient long sessions
-- 💾 **Crash-resumable** — state persists per step; `--resume` continues anywhere
-- 🎨 **Rich terminal UI** — colour-coded panels for every tool call
-- 🔍 **Glass-box agentic loop** — full visibility into the plan, every action, every result
+The video above is fully reproducible. Anyone with an `ANTHROPIC_API_KEY` can run the same fix on the same broken repo:
+
+```bash
+# 1. Provision a broken FastAPI target at /tmp/demo-target
+bash demo/setup.sh
+
+# 2. Hand the exact same prompt to the agent
+python main.py "$(cat demo/prompt.txt)"
+```
+
+What happens:
+
+1. `demo/setup.sh` writes a 5-line FastAPI app to `/tmp/demo-target/` whose `/users` endpoint raises `TypeError` (list + string concat).
+2. The Initializer plans the fix as a JSON task graph.
+3. The Coding Agent reads `app.py`, writes the fix, adds a pytest that reproduces the original 500, and runs it.
+4. State is checkpointed to `state/state.json` after every step — kill it mid-run and `--resume` continues.
+
+See [`demo/CAPTIONS.md`](demo/CAPTIONS.md) for the caption overlay timings used in the video.
 
 ## 📂 Project structure
 
@@ -81,6 +126,12 @@ autonomous-coding-agent/
 │   └── shell_tools.py      # run_command
 ├── state/
 │   └── manager.py          # AgentState dataclass + JSON persistence
+├── demo/
+│   ├── setup.sh            # Provisions the broken FastAPI target
+│   ├── prompt.txt          # Exact prompt used in the screencast
+│   └── CAPTIONS.md         # Video caption timings
+├── .github/workflows/
+│   └── ci.yml              # Multi-version Python CI
 ├── workspaces/             # Generated projects land here (gitignored)
 ├── requirements.txt
 └── .env.example

@@ -1,0 +1,1 @@
+the /users endpoint returns 500 — fix it and add a test that reproduces the original bug.
